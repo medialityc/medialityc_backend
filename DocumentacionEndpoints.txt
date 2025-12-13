@@ -1,0 +1,377 @@
+Entidad: Area
+- Endpoint: GetAllAreaEndpoint
+	Ruta: GET /areas/all
+	Descripcion: Listado paginado de areas con filtro opcional por nombre.
+	Request (query GetAllAreaRequest):
+		- Page (int?, minimo 1)
+		- PageSize (int?, minimo 1, maximo 200)
+		- Search (string?, texto a buscar en nombre)
+		- SortBy (string?, propiedad para ordenar, por defecto Id)
+		- IsDescending (bool?, orden descendente si es true)
+	Response (PaginatedResponse<GetAllAreaResponse>):
+		- Data[]: Id (int), Name (string)
+		- Page (int)
+		- PageSize (int)
+		- TotalCount (int)
+		- TotalPages (int)
+	Autenticacion: Si
+
+- Endpoint: GetAreaByIdEndpoint
+	Ruta: GET /areas/{Id}
+	Descripcion: Obtiene los datos de un area especifica por su identificador.
+	Request (ruta GetAreaByIdRequest):
+		- Id (int, requerido)
+	Response (GetAreaByIdResponse):
+		- Id (int)
+		- Name (string)
+	Autenticacion: Si
+
+- Endpoint: CreateAreaEndpoint
+	Ruta: POST /areas/create
+	Descripcion: Crea un nuevo registro de area verificando duplicados por nombre.
+	Request (JSON CreateAreaRequest):
+		- Name (string, requerido, maximo 200 caracteres)
+	Response (GenericAreaResponse):
+		- Id (int)
+		- Name (string)
+	Autenticacion: Si
+
+- Endpoint: UpdateAreaEndpoint
+	Ruta: PUT /areas/update
+	Descripcion: Actualiza el nombre de un area existente validando duplicados.
+	Request (JSON UpdateAreaRequest):
+		- Id (int, requerido)
+		- Name (string?, maximo 200 caracteres)
+	Response (GenericAreaResponse):
+		- Id (int)
+		- Name (string)
+	Autenticacion: Si
+
+- Endpoint: DeleteAreaEndpoint
+	Ruta: DELETE /areas/delete
+	Descripcion: Elimina un area existente por identificador.
+	Request (JSON DeleteAreaRequest):
+		- Id (int, requerido)
+	Response: mensaje de confirmacion (string)
+	Autenticacion: Si
+
+- Endpoint: GetAreaByIdLandingEndpoint
+	Ruta: GET /areas/landing/{Id}
+	Descripcion: Devuelve informacion publica de un area para la landing.
+	Request (ruta GetAreaByIdRequest):
+		- Id (int, requerido)
+	Response (GetAreaByIdResponse):
+		- Id (int)
+		- Name (string)
+	Autenticacion: No
+
+Entidad: Project
+- Endpoint: GetAllProjectEndpoint
+	Ruta: GET /projects/all
+	Descripcion: Listado paginado de proyectos con busqueda y datos de redes sociales.
+	Request (query GetAllProjectRequest):
+		- Search (string?, busca en nombre, descripcion o compania)
+		- Page (int?)
+		- PageSize (int?)
+		- SortBy (string?)
+		- IsDescending (bool?)
+	Response (PaginatedResponse<GetAllProjectResponse>):
+		- Data[]: Id (int), Name (string), Description (string), Company (string), CreatedAt (datetime), Network { Id (int), Instagram (string), Facebook (string), LinkedIn (string), Twitter (string) }
+		- Page (int)
+		- PageSize (int)
+		- TotalCount (int)
+		- TotalPages (int)
+	Autenticacion: Si
+
+- Endpoint: GetProjectByIdEndpoint
+	Ruta: GET /projects/{Id}
+	Descripcion: Obtiene el detalle de un proyecto incluyendo su red asociada.
+	Request (ruta GetProjectByIdRequest):
+		- Id (int, requerido)
+	Response (GetProjectByIdResponse):
+		- Id (int)
+		- Name (string)
+		- Description (string)
+		- Company (string)
+		- CreatedAt (datetime)
+		- Network: Id (int), Instagram (string), Facebook (string), LinkedIn (string), Twitter (string)
+	Autenticacion: Si
+
+- Endpoint: CreateProjectEndpoint
+	Ruta: POST /projects/create
+	Descripcion: Crea un proyecto nuevo junto con sus enlaces de red social.
+	Request (JSON CreateProjectRequest):
+		- Name (string, requerido, maximo 200)
+		- Description (string, requerido, maximo 1000)
+		- Company (string, requerido, maximo 200)
+		- InstagramUrl (string, requerido, maximo 500)
+		- FacebookUrl (string, requerido, maximo 500)
+		- LinkedinUrl (string, requerido, maximo 500)
+		- TwitterUrl (string, requerido, maximo 500)
+	Response (GenericProjectResponse):
+		- Id (int)
+		- Name (string)
+		- Description (string)
+		- Company (string)
+		- CreatedAt (datetime)
+		- Network: Id (int), Instagram (string), Facebook (string), LinkedIn (string), Twitter (string)
+	Autenticacion: Si
+
+- Endpoint: UpdateProjectEndpoint
+	Ruta: PUT /projects/update
+	Descripcion: Actualiza datos de un proyecto y sus redes tras validar duplicados.
+	Request (JSON UpdateProjectRequest):
+		- Id (int, requerido)
+		- Name (string?, maximo 200)
+		- Description (string?, maximo 1000)
+		- Company (string?, maximo 200)
+		- InstagramUrl (string?, maximo 500)
+		- FacebookUrl (string?, maximo 500)
+		- LinkedinUrl (string?, maximo 500)
+		- TwitterUrl (string?, maximo 500)
+	Response (GenericProjectResponse): campos iguales al create
+	Autenticacion: Si
+
+- Endpoint: DeleteProjectEndpoint
+	Ruta: DELETE /projects/delete
+	Descripcion: Elimina un proyecto por identificador.
+	Request (JSON DeleteProjectRequest):
+		- Id (int, requerido)
+	Response: mensaje de confirmacion (string)
+	Autenticacion: Si
+
+- Endpoint: GetAllProjectLandingEndpoint
+	Ruta: GET /projects/landing/all
+	Descripcion: Listado publico paginado de proyectos para la landing.
+	Request (query GetAllProjectRequest): mismos campos que GetAllProjectEndpoint
+	Response (PaginatedResponse<GetAllProjectResponse>): misma estructura que endpoint protegido
+	Autenticacion: No
+
+- Endpoint: GetProjectByIdLandingEndpoint
+	Ruta: GET /projects/landing/{Id}
+	Descripcion: Detalle publico de proyecto con informacion de redes.
+	Request (ruta GetProjectByIdRequest): Id (int)
+	Response (GetProjectByIdResponse): misma estructura que endpoint protegido
+	Autenticacion: No
+
+Entidad: ReviewProject
+- Endpoint: GetAllReviewProjectEndpoint
+	Ruta: GET /review-projects/all
+	Descripcion: Lista paginada de reseñas de proyecto con busqueda.
+	Request (query GetAllReviewProjectRequest):
+		- Search (string?)
+		- Page (int?)
+		- PageSize (int?)
+		- SortBy (string?)
+		- IsDescending (bool?)
+	Response (PaginatedResponse<GetAllReviewProjectResponse>):
+		- Data[]: Id (int), ProjectId (int), WorkProfileId (int), SpecificReview (string), PerformanceEvaluation (decimal 0-5)
+		- Page, PageSize, TotalCount, TotalPages
+	Autenticacion: Si
+
+- Endpoint: GetReviewProjectByIdEndpoint
+	Ruta: GET /review-projects/{Id}
+	Descripcion: Recupera una reseña de proyecto especifica.
+	Request (ruta GetReviewProjectByIdRequest): Id (int)
+	Response (GetReviewProjectByIdResponse): iguales campos que en Data del listado
+	Autenticacion: Si
+
+- Endpoint: CreateReviewProjectEndpoint
+	Ruta: POST /review-projects/create
+	Descripcion: Crea una reseña de proyecto validando relaciones y duplicados.
+	Request (JSON CreateReviewProjectRequest):
+		- ProjectId (int, requerido)
+		- WorkProfileId (int, requerido)
+		- SpecificReview (string, requerido, maximo 2000)
+		- PerformanceEvaluation (decimal, rango 0-5)
+	Response (GenericReviewProjectResponse): mismos campos que la request mas Id autogenerado
+	Autenticacion: Si
+
+- Endpoint: UpdateReviewProjectEndpoint
+	Ruta: PUT /review-projects/update
+	Descripcion: Actualiza campos de una reseña y verifica combinaciones unicas.
+	Request (JSON UpdateReviewProjectRequest):
+		- Id (int, requerido)
+		- ProjectId (int?)
+		- WorkProfileId (int?)
+		- SpecificReview (string?, maximo 2000)
+		- PerformanceEvaluation (decimal?, rango 0-5)
+	Response (GenericReviewProjectResponse): Id, ProjectId, WorkProfileId, SpecificReview, PerformanceEvaluation
+	Autenticacion: Si
+
+- Endpoint: DeleteReviewProjectEndpoint
+	Ruta: DELETE /review-projects/delete
+	Descripcion: Elimina una reseña de proyecto por identificador.
+	Request (JSON DeleteReviewProjectRequest): Id (int)
+	Response: mensaje de confirmacion (string)
+	Autenticacion: Si
+
+- Endpoint: GetAllReviewProjectLandingEndpoint
+	Ruta: GET /review-projects/landing/all
+	Descripcion: Muestra reseñas disponibles para la landing con paginacion.
+	Request (query GetAllReviewProjectRequest): mismos campos
+	Response (PaginatedResponse<GetAllReviewProjectResponse>): igual que endpoint protegido
+	Autenticacion: No
+
+- Endpoint: GetReviewProjectByIdLandingEndpoint
+	Ruta: GET /review-projects/landing/{Id}
+	Descripcion: Devuelve una reseña publica para la landing.
+	Request (ruta GetReviewProjectByIdRequest): Id (int)
+	Response (GetReviewProjectByIdResponse): igual que endpoint protegido
+	Autenticacion: No
+
+Entidad: RoleProfile
+- Endpoint: GetAllRoleProfileEndpoint
+	Ruta: GET /role-profiles/all
+	Descripcion: Listado paginado de roles con filtro por nombre.
+	Request (query GetAllRoleProfileRequest):
+		- Search (string?)
+		- Page (int?)
+		- PageSize (int?)
+		- SortBy (string?)
+		- IsDescending (bool?)
+	Response (PaginatedResponse<GetAllRoleProfileResponse>):
+		- Data[]: Id (int), Name (string)
+		- Page, PageSize, TotalCount, TotalPages
+	Autenticacion: Si
+
+- Endpoint: GetRoleProfileByIdEndpoint
+	Ruta: GET /role-profiles/{Id}
+	Descripcion: Obtiene un rol especifico por su identificador.
+	Request (ruta GetRoleProfileByIdRequest): Id (int)
+	Response (GetRoleProfileByIdResponse): Id (int), Name (string)
+	Autenticacion: Si
+
+- Endpoint: CreateRoleProfileEndpoint
+	Ruta: POST /role-profiles/create
+	Descripcion: Crea un nuevo rol verificando duplicados por nombre.
+	Request (JSON CreateRoleProfileRequest): Name (string, requerido, maximo 200)
+	Response (GenericRoleProfileResponse): Id (int), Name (string)
+	Autenticacion: Si
+
+- Endpoint: UpdateRoleProfileEndpoint
+	Ruta: PUT /role-profiles/update
+	Descripcion: Actualiza el nombre de un rol asegurando unicidad.
+	Request (JSON UpdateRoleProfileRequest):
+		- Id (int, requerido)
+		- Name (string?, maximo 200)
+	Response (GenericRoleProfileResponse): Id (int), Name (string)
+	Autenticacion: Si
+
+- Endpoint: DeleteRoleProfileEndpoint
+	Ruta: DELETE /role-profiles/delete
+	Descripcion: Elimina un rol por identificador.
+	Request (JSON DeleteRoleProfileRequest): Id (int)
+	Response: mensaje de confirmacion (string)
+	Autenticacion: Si
+
+- Endpoint: GetAllRoleProfileLandingEndpoint
+	Ruta: GET /role-profiles/landing/all
+	Descripcion: Proporciona roles disponibles para la landing con paginacion.
+	Request (query GetAllRoleProfileRequest): mismos campos
+	Response (PaginatedResponse<GetAllRoleProfileResponse>): igual que endpoint protegido
+	Autenticacion: No
+
+- Endpoint: GetRoleProfileByIdLandingEndpoint
+	Ruta: GET /role-profiles/landing/{Id}
+	Descripcion: Devuelve los datos publicos de un rol para la landing.
+	Request (ruta GetRoleProfileByIdRequest): Id (int)
+	Response (GetRoleProfileByIdResponse): Id (int), Name (string)
+	Autenticacion: No
+
+Entidad: WorkProfile
+- Endpoint: GetAllWorkProfileEndpoint
+	Ruta: GET /work-profiles/all
+	Descripcion: Listado paginado de perfiles profesionales con relacion de area y rol.
+	Request (query GetAllWorkProfileRequest):
+		- Search (string?)
+		- Page (int?)
+		- PageSize (int?)
+		- SortBy (string?)
+		- IsDescending (bool?)
+	Response (PaginatedResponse<GetAllWorkProfileResponse>):
+		- Data[]: Id (int), FirsName (string), LastName (string), AreaId (int), RoleProfileId (int), Email (string), GitHubProfile (string), Image (string?), ReviewStars (decimal 0-5), OverallReview (string?)
+		- Page, PageSize, TotalCount, TotalPages
+	Autenticacion: Si
+
+- Endpoint: GetWorkProfileByIdEndpoint
+	Ruta: GET /work-profiles/{Id}
+	Descripcion: Obtiene el detalle de un perfil profesional por identificador.
+	Request (ruta GetWorkProfileByIdRequest): Id (int)
+	Response (GetWorkProfileByIdResponse): mismos campos que el listado
+	Autenticacion: Si
+
+- Endpoint: CreateWorkProfileEndpoint
+	Ruta: POST /work-profiles/create
+	Descripcion: Crea un perfil profesional validando areas, roles y correo unico.
+	Request (JSON CreateWorkProfileRequest):
+		- FirsName (string, requerido, maximo 150)
+		- LastName (string, requerido, maximo 150)
+		- AreaId (int, requerido)
+		- RoleProfileId (int, requerido)
+		- Email (string, requerido, formato email)
+		- GitHubProfile (string, requerido, maximo 300)
+		- Image (string?, maximo 500)
+		- ReviewStars (decimal, rango 0-5)
+		- OverallReview (string?, maximo 2000)
+	Response (GenericWorkProfileResponse): Id (int) y mismos campos que la request ya normalizados
+	Autenticacion: Si
+
+- Endpoint: UpdateWorkProfileEndpoint
+	Ruta: PUT /work-profiles/update
+	Descripcion: Actualiza datos personales, relaciones y calificaciones del perfil.
+	Request (JSON UpdateWorkProfileRequest):
+		- Id (int, requerido)
+		- FirsName (string?, maximo 150)
+		- LastName (string?, maximo 150)
+		- AreaId (int?)
+		- RoleProfileId (int?)
+		- Email (string?, formato email)
+		- GitHubProfile (string?, maximo 300)
+		- Image (string?, maximo 500)
+		- ReviewStars (decimal?, rango 0-5)
+		- OverallReview (string?, maximo 2000)
+	Response (GenericWorkProfileResponse): Id (int) y valores finales del perfil
+	Autenticacion: Si
+
+- Endpoint: DeleteWorkProfileEndpoint
+	Ruta: DELETE /work-profiles/delete
+	Descripcion: Elimina un perfil profesional por identificador.
+	Request (JSON DeleteWorkProfileRequest): Id (int)
+	Response: mensaje de confirmacion (string)
+	Autenticacion: Si
+
+- Endpoint: GetAllWorkProfileLandingEndpoint
+	Ruta: GET /work-profiles/landing/all
+	Descripcion: Listado publico de perfiles profesionales para la landing.
+	Request (query GetAllWorkProfileRequest): mismos campos
+	Response (PaginatedResponse<GetAllWorkProfileResponse>): igual que endpoint protegido
+	Autenticacion: No
+
+- Endpoint: GetWorkProfileByIdLandingEndpoint
+	Ruta: GET /work-profiles/landing/{Id}
+	Descripcion: Muestra informacion publica de un perfil profesional para la landing.
+	Request (ruta GetWorkProfileByIdRequest): Id (int)
+	Response (GetWorkProfileByIdResponse): mismos campos que endpoint protegido
+	Autenticacion: No
+
+Entidad: Auth
+- Endpoint: LoginEndpoint
+	Ruta: POST /auth/login
+	Descripcion: Valida credenciales y genera un token JWT de acceso.
+	Request (JSON LoginRequest):
+		- Username (string, requerido)
+		- Password (string, requerido)
+	Response (LoginResponse):
+		- Token (string)
+		- TokenType (string, valor Bearer)
+		- ExpiresInMinutes (int)
+	Autenticacion: No
+
+General
+- Endpoint: Hello
+	Ruta: GET /hello
+	Descripcion: Endpoint simple de verificacion que devuelve un saludo.
+	Request: sin cuerpo ni parametros
+	Response: cadena estatica Hello
+	Autenticacion: No

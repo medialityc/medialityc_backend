@@ -1,0 +1,10 @@
+/.idea
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+/obj
+*.http
+/bin
+.vs/
+/Mirations
+*.DotSettings.user
