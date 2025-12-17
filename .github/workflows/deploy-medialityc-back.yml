@@ -1,4 +1,4 @@
-name: Deploy to Suntravels production
+name: Deploy to Medialityc
 
 on:
   push:
