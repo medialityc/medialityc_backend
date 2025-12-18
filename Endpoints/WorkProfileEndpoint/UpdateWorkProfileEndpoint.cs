@@ -2,13 +2,14 @@ using FastEndpoints;
 using Medialityc.Data;
 using Medialityc.Endpoints.WorkProfileEndpoint.WorkProfileRequest;
 using Medialityc.Endpoints.WorkProfileEndpoint.WorkProfileResponse;
+using Medialityc.Services.MinioService;
 using Medialityc.Utils.Authentication;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medialityc.Endpoints.WorkProfileEndpoint
 {
-    public class UpdateWorkProfileEndpoint(IMedialitycDbContext dbContext, IAuthService authService) : Endpoint<UpdateWorkProfileRequest,
+    public class UpdateWorkProfileEndpoint(IMedialitycDbContext dbContext, IAuthService authService, IBlobServices blobServices) : Endpoint<UpdateWorkProfileRequest,
         Results<Ok<GenericWorkProfileResponse>, Conflict<string>, BadRequest<string>, UnauthorizedHttpResult>>
     {
         public override void Configure()
@@ -65,9 +66,20 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint
                 workProfile.GitHubProfile = request.GitHubProfile.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Image))
+            if (request.Image is not null)
             {
-                workProfile.Image = request.Image.Trim();
+                string objectPath;
+
+                try
+                {
+                    objectPath = await blobServices.UploadBlob(request.Image, workProfile.Image, ct);
+                }
+                catch (Exception ex)
+                {
+                    return TypedResults.BadRequest($"Error al subir la imagen: {ex.Message}");
+                }
+
+                workProfile.Image = objectPath;
             }
 
             if (request.ReviewStars.HasValue)
@@ -110,6 +122,10 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint
 
             await dbContext.SaveChangesAsync(ct);
 
+            var responsePrincipalImageUrl = !string.IsNullOrEmpty(workProfile.Image)
+                ? await blobServices.PresignedGetUrl(workProfile.Image, ct)
+                : string.Empty;
+
             var response = new GenericWorkProfileResponse
             {
                 Id = workProfile.Id,
@@ -119,7 +135,7 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint
                 RoleProfileId = workProfile.Role.Id,
                 Email = workProfile.Email,
                 GitHubProfile = workProfile.GitHubProfile,
-                Image = workProfile.Image,
+                Image = string.IsNullOrEmpty(responsePrincipalImageUrl) ? workProfile.Image : responsePrincipalImageUrl,
                 ReviewStars = workProfile.ReviewStars,
                 OverallReview = workProfile.OverallReview
             };

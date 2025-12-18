@@ -6,10 +6,10 @@ using Medialityc.Endpoints.WorkProfileEndpoint.WorkProfileResponse;
 using Medialityc.Utils.Authentication;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-
+using Medialityc.Services.MinioService;
 namespace Medialityc.Endpoints.WorkProfileEndpoint
 {
-    public class CreateWorkProfileEndpoint(IMedialitycDbContext dbContext, IAuthService authService) : Endpoint<CreateWorkProfileRequest,
+    public class CreateWorkProfileEndpoint(IMedialitycDbContext dbContext, IAuthService authService, IBlobServices blobServices) : Endpoint<CreateWorkProfileRequest,
         Results<Ok<GenericWorkProfileResponse>, Conflict<string>, BadRequest<string>, UnauthorizedHttpResult>>
     {
         public override void Configure()
@@ -26,11 +26,19 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint
                 return TypedResults.Unauthorized();
             }
 
+            string objectPath = "";
+            try {
+                 objectPath = await blobServices.UploadBlob(request.Image, null, ct);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.BadRequest($"Error al subir la imagen: {ex.Message}");
+            }
+
             var normalizedFirstName = request.FirsName.Trim();
             var normalizedLastName = request.LastName.Trim();
             var normalizedEmail = request.Email.Trim();
             var normalizedGitHub = request.GitHubProfile.Trim();
-            var normalizedImage = request.Image?.Trim();
             var normalizedOverallReview = request.OverallReview?.Trim();
 
             if (string.IsNullOrWhiteSpace(normalizedFirstName) || string.IsNullOrWhiteSpace(normalizedLastName) ||
@@ -80,7 +88,7 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint
                 Area = areaExist ,
                 Email = normalizedEmail,
                 GitHubProfile = normalizedGitHub,
-                Image = normalizedImage ?? string.Empty,
+                Image = objectPath ?? string.Empty,
                 ReviewStars = request.ReviewStars,
                 OverallReview = normalizedOverallReview ?? string.Empty
             };
@@ -88,6 +96,10 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint
 
             await dbContext.WorkProfiles.AddAsync(newWorkProfile, ct);
             await dbContext.SaveChangesAsync(ct);
+
+            var responsePrincipalImageUrl = !string.IsNullOrEmpty(newWorkProfile.Image) 
+                ? await blobServices.PresignedGetUrl(newWorkProfile.Image, ct) 
+                : string.Empty;
 
             var response = new GenericWorkProfileResponse
             {

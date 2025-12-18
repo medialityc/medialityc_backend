@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Medialityc.Endpoints.WorkProfileEndpoint.WorkProfileRequest
 {
@@ -23,8 +24,7 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint.WorkProfileRequest
         [MaxLength(300)]
         public string? GitHubProfile { get; set; }
 
-        [MaxLength(500)]
-        public string? Image { get; set; }
+        public IFormFile? Image { get; set; }
 
         [Range(0, 5)]
         public decimal? ReviewStars { get; set; }

@@ -26,8 +26,7 @@ namespace Medialityc.Endpoints.WorkProfileEndpoint.WorkProfileRequest
         [MaxLength(300)]
         public string GitHubProfile { get; set; } = string.Empty;
 
-        [MaxLength(500)]
-        public string? Image { get; set; }
+        public required IFormFile Image { get; set; }
 
         [Range(0, 5)]
         public decimal ReviewStars { get; set; }
