@@ -6,6 +6,8 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Medialityc.Services.MinioService;
+using Medialityc.Utils.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MedialitycDbContext>((sp,options) =>
@@ -16,6 +18,9 @@ builder.Services.AddDbContext<MedialitycDbContext>((sp,options) =>
 // Registrar la interfaz del DbContext
 builder.Services.AddScoped<IMedialitycDbContext>(provider => 
     provider.GetRequiredService<MedialitycDbContext>());
+
+builder.Services.Configure<MinioOptions>(builder.Configuration.GetSection(MinioOptions.SectionName));
+builder.Services.AddScoped<IBlobServices, MinioBlobServices>();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
